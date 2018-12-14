@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta http-equiv="refresh" content="10" >
+    <meta http-equiv="refresh" content="60" >
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -35,8 +35,8 @@
                 <thead>
                 <tr>
                     <th>Process</th>
-                    <th>Last run</th>
-                    <th>Num items processed</th>
+                    <th>Last run (# items)</th>
+                    <th>Total # items</th>
                     <th>Status</th>
                 </tr>
                 </thead>
@@ -47,8 +47,8 @@
                 foreach ($scraper_results as $scraper_result) {?>
                     <tr>
                         <td> <?php echo $scraper_result['name']; ?> </td>
-                        <td> <?php echo $scraper_result['timestamp']; ?> </td>
-                        <td> <?php echo $scraper_result['num_processed_items']; ?> </td>
+                        <td> <?php echo $scraper_result['timestamp']; ?> (<?php echo $scraper_result['num_processed_items']; ?>) </td>
+                        <td> <?php echo $scraper_result['total_num_items']; ?> </td>
                         <td> <?php
                             if ($scraper_result['status_id'] == '1'){
                                 echo '<i class="fas fa-circle" style="color:yellow"></i>';

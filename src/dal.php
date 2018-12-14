@@ -45,28 +45,62 @@ function get_status_of_all_processes()
             $stmt->execute();
             $scraper_results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (sizeof($scraper_results) == 0){
-                array_push($result_array,
-                    array(
-                        'id'=>$scraper_id,
-                        'name'=>$scraper_name,
-                        'timestamp'=>'-',
-                        'num_processed_items'=>'-',
-                        'status_id'=>'',
-                        'status_text'=>'Never ran'));
+                $result_array[$scraper_id] = array(
+                    'id'=>$scraper_id,
+                    'name'=>$scraper_name,
+                    'timestamp'=>'-',
+                    'num_processed_items'=>'-',
+                    'status_id'=>'',
+                    'status_text'=>'Never ran');
             } else {
                 $timestamp = $scraper_results[0]['timestamp'];
                 $status_id = $scraper_results[0]['status_id'];
                 $status_text = $scraper_results[0]['status_text'];
                 $num_processed_items = $scraper_results[0]['num_processed_items'];
-                array_push($result_array,
-                    array(
-                        'id'=>$scraper_id,
-                        'name'=>$scraper_name,
-                        'timestamp'=>$timestamp,
-                        'num_processed_items'=>$num_processed_items,
-                        'status_id'=>$status_id,
-                        'status_text'=>$status_text));
+                $result_array[$scraper_id] = array(
+                    'id'=>$scraper_id,
+                    'name'=>$scraper_name,
+                    'timestamp'=>$timestamp,
+                    'num_processed_items'=>$num_processed_items,
+                    'status_id'=>$status_id,
+                    'status_text'=>$status_text);
             }
+        }
+        catch (PDOException $e)
+        {
+            echo $sql . "<br>" . $e->getMessage();
+        }
+    }
+
+    $scraper_ids = array_keys($result_array);
+    $desc = '';
+
+    foreach ($scraper_ids as $scraper_id) {
+        if ($scraper_id == '1'){  //1 Samkeppni.is scraper
+            $sql = "select count(*) as c from samkeppni_entries";
+            $desc = ' mál';
+        } elseif ($scraper_id == '2') {  //2 Skemma.is scraper
+            $sql = "select count(*) as c from skemma_thesis Where has_public_files=1";
+            $desc = ' ritgerðir';
+        } elseif ($scraper_id == '3') {  //3 Samkeppni.is PDF to Text Converter
+            $sql = "select count(*) as c from samkeppni_extracted_text Where file_name <> ''";
+            $desc = ' skjöl';
+        } elseif ($scraper_id == '4') {  //4 Skemma.is PDF to Text Converter
+            $sql = "select count(*) as c from skemma_extracted_text Where file_name <> ''";
+            $desc = ' skjöl';
+        } elseif ($scraper_id == '5') {  //5 Dagskrá dómstóla scraper
+            $sql = 'select count(*) as c from lawyer_appointments';
+            $desc = ' appointments';
+        } elseif ($scraper_id == '7') {  //7 Uppfæra vaxtatöflur fyrir Vaxtareikni
+            $sql = 'select 2 as c';  // Just a constant :)
+            $desc = ' skjöl';
+        }
+
+        try {
+            $stmt = $connection->prepare($sql);
+            $stmt->execute();
+            $arr = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result_array[$scraper_id]['total_num_items'] = $arr['c'] . $desc;
         }
         catch (PDOException $e)
         {
