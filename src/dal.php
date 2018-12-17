@@ -1,26 +1,9 @@
 <?php
 
-function get_saved_theses()
-{
-    $connection = _get_connection();
-    $sql = 'SELECT id, title, author, has_public_files, url FROM skemma_thesis';
-    try {
-        $stmt = $connection->prepare($sql);
-        $stmt->execute();
-        $arr = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $arr;
-    }
-    catch (PDOException $e)
-    {
-        echo $sql . "<br>" . $e->getMessage();
-    }
-}
-
-
 function get_status_of_all_processes()
 {
     $connection = _get_connection();
-    $sql = 'SELECT id, name FROM scraper';
+    $sql = 'SELECT id, name, item_description FROM scraper';
     try {
         $stmt = $connection->prepare($sql);
         $stmt->execute();
@@ -37,8 +20,9 @@ function get_status_of_all_processes()
     foreach ($scrapers as $scraper){
         $scraper_id = $scraper['id'];
         $scraper_name = $scraper['name'];
+        $item_description = $scraper['item_description'];
 
-        $sql = 'select timestamp, status_id, status_text, num_processed_items from scraper_run where scraper_id = :scraper_id order by timestamp desc limit 1';
+        $sql = 'select timestamp, status_id, status_text, num_processed_items, run_location from scraper_run where scraper_id = :scraper_id order by timestamp desc limit 1';
         try {
             $stmt = $connection->prepare($sql);
             $stmt->bindParam(':scraper_id', $scraper_id);
@@ -51,19 +35,24 @@ function get_status_of_all_processes()
                     'timestamp'=>'-',
                     'num_processed_items'=>'-',
                     'status_id'=>'',
-                    'status_text'=>'Never ran');
+                    'status_text'=>'Never ran',
+                    'item_description'=>$item_description,
+                    'run_location'=>'');
             } else {
                 $timestamp = $scraper_results[0]['timestamp'];
                 $status_id = $scraper_results[0]['status_id'];
                 $status_text = $scraper_results[0]['status_text'];
                 $num_processed_items = $scraper_results[0]['num_processed_items'];
+                $run_location = $scraper_results[0]['run_location'];
                 $result_array[$scraper_id] = array(
                     'id'=>$scraper_id,
                     'name'=>$scraper_name,
                     'timestamp'=>$timestamp,
                     'num_processed_items'=>$num_processed_items,
                     'status_id'=>$status_id,
-                    'status_text'=>$status_text);
+                    'status_text'=>$status_text,
+                    'item_description'=>$item_description,
+                    'run_location'=>$run_location);
             }
         }
         catch (PDOException $e)
@@ -73,34 +62,18 @@ function get_status_of_all_processes()
     }
 
     $scraper_ids = array_keys($result_array);
-    $desc = '';
 
     foreach ($scraper_ids as $scraper_id) {
-        if ($scraper_id == '1'){  //1 Samkeppni.is scraper
-            $sql = "select count(*) as c from samkeppni_entries";
-            $desc = ' mál';
-        } elseif ($scraper_id == '2') {  //2 Skemma.is scraper
-            $sql = "select count(*) as c from skemma_thesis Where has_public_files=1";
-            $desc = ' ritgerðir';
-        } elseif ($scraper_id == '3') {  //3 Samkeppni.is PDF to Text Converter
-            $sql = "select count(*) as c from samkeppni_extracted_text Where file_name <> ''";
-            $desc = ' skjöl';
-        } elseif ($scraper_id == '4') {  //4 Skemma.is PDF to Text Converter
-            $sql = "select count(*) as c from skemma_extracted_text Where file_name <> ''";
-            $desc = ' skjöl';
-        } elseif ($scraper_id == '5') {  //5 Dagskrá dómstóla scraper
-            $sql = 'select count(*) as c from lawyer_appointments';
-            $desc = ' appointments';
-        } elseif ($scraper_id == '7') {  //7 Uppfæra vaxtatöflur fyrir Vaxtareikni
-            $sql = 'select 2 as c';  // Just a constant :)
-            $desc = ' skjöl';
-        }
+
+        $sql = "SELECT sum(num_processed_items) as c FROM scraper_run WHERE scraper_id=:scraper_id";
 
         try {
             $stmt = $connection->prepare($sql);
+            $stmt->bindParam(':scraper_id', $scraper_id);
+
             $stmt->execute();
             $arr = $stmt->fetch(PDO::FETCH_ASSOC);
-            $result_array[$scraper_id]['total_num_items'] = $arr['c'] . $desc;
+            $result_array[$scraper_id]['total_num_items'] = $arr['c'];
         }
         catch (PDOException $e)
         {

@@ -37,7 +37,7 @@
                     <th>Process</th>
                     <th>Last run (# items)</th>
                     <th>Total # items</th>
-                    <th>Status</th>
+                    <th>Run location</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -46,10 +46,8 @@
                 $scraper_results = get_status_of_all_processes();
                 foreach ($scraper_results as $scraper_result) {?>
                     <tr>
-                        <td> <?php echo $scraper_result['name']; ?> </td>
-                        <td> <?php echo $scraper_result['timestamp']; ?> (<?php echo $scraper_result['num_processed_items']; ?>) </td>
-                        <td> <?php echo $scraper_result['total_num_items']; ?> </td>
-                        <td> <?php
+                        <td>
+                            <?php
                             if ($scraper_result['status_id'] == '1'){
                                 echo '<i class="fas fa-circle" style="color:yellow"></i>';
                             } elseif ($scraper_result['status_id'] == '2'){
@@ -58,9 +56,12 @@
                                 echo '<i class="fas fa-circle" style="color:red"></i>';
                                 echo $scraper_result['status_text'];
                             }
-                             ?>
-
-                        </td>
+                            ?>
+                            &nbsp;
+                            <?php echo $scraper_result['name']; ?> </td>
+                        <td> <?php echo $scraper_result['timestamp']; ?> (<?php echo $scraper_result['num_processed_items']; ?>) </td>
+                        <td> <?php echo $scraper_result['total_num_items']; ?>&nbsp;<?php echo $scraper_result['item_description']; ?></td>
+                        <td> <?php echo $scraper_result['run_location']; ?> </td>
                     </tr>
                 <?php } ?>
                 </tbody>
