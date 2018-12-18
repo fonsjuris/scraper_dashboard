@@ -1,6 +1,6 @@
 <?php
 // Simple password protection
-if (!isset($_COOKIE['password']) || $_COOKIE['password'] !== 'MYPASS') {
+if (!isset($_COOKIE['password']) || $_COOKIE['password'] !== getenv('SITE_PW')) {
     header('Location: login.php');
     exit;
 }
@@ -138,7 +138,7 @@ if (!isset($_COOKIE['password']) || $_COOKIE['password'] !== 'MYPASS') {
         });
 
         gapi.analytics.auth.on('success', function(response) {
-            //hide the auth-button
+            //hide the auth-buttonMY
             document.querySelector("#embed-api-auth-container").style.display='none';
             document.querySelector("#view-selector-container").style.display='none';
             document.querySelector("#view-name").style.display='none';
