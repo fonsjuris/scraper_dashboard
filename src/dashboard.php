@@ -69,7 +69,6 @@ if (!isset($_COOKIE['password']) || $_COOKIE['password'] !== getenv('SITE_PW')) 
                     <th>Process</th>
                     <th>Last run (# items)</th>
                     <th>Total # items</th>
-                    <th>Run location</th>
                 </tr>
                 </thead>
                 <tbody>
