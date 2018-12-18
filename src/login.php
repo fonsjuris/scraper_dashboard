@@ -1,6 +1,6 @@
 <?php
 if (isset($_POST['password']) && $_POST['password'] == getenv('SITE_PW')) {
-    setcookie("password", 'MYPASS', strtotime('+30 days'));
+    setcookie("password", getenv('SITE_PW'), strtotime('+30 days'));
     header('Location: dashboard.php');
     exit;
 }
