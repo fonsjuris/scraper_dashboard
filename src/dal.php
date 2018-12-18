@@ -22,7 +22,7 @@ function get_status_of_all_processes()
         $scraper_name = $scraper['name'];
         $item_description = $scraper['item_description'];
 
-        $sql = 'select timestamp, status_id, status_text, num_processed_items, run_location from scraper_run where scraper_id = :scraper_id order by timestamp desc limit 1';
+        $sql = 'select timestamp, status_id, status_text, num_processed_items from scraper_run where scraper_id = :scraper_id order by timestamp desc limit 1';
         try {
             $stmt = $connection->prepare($sql);
             $stmt->bindParam(':scraper_id', $scraper_id);
@@ -36,14 +36,12 @@ function get_status_of_all_processes()
                     'num_processed_items'=>'-',
                     'status_id'=>'',
                     'status_text'=>'Never ran',
-                    'item_description'=>$item_description,
-                    'run_location'=>'');
+                    'item_description'=>$item_description);
             } else {
                 $timestamp = $scraper_results[0]['timestamp'];
                 $status_id = $scraper_results[0]['status_id'];
                 $status_text = $scraper_results[0]['status_text'];
                 $num_processed_items = $scraper_results[0]['num_processed_items'];
-                $run_location = $scraper_results[0]['run_location'];
                 $result_array[$scraper_id] = array(
                     'id'=>$scraper_id,
                     'name'=>$scraper_name,
@@ -51,8 +49,7 @@ function get_status_of_all_processes()
                     'num_processed_items'=>$num_processed_items,
                     'status_id'=>$status_id,
                     'status_text'=>$status_text,
-                    'item_description'=>$item_description,
-                    'run_location'=>$run_location);
+                    'item_description'=>$item_description);
             }
         }
         catch (PDOException $e)

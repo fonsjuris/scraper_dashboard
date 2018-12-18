@@ -92,7 +92,6 @@ if (!isset($_COOKIE['password']) || $_COOKIE['password'] !== getenv('SITE_PW')) 
                             <?php echo $scraper_result['name']; ?> </td>
                         <td> <?php echo $scraper_result['timestamp']; ?> (<?php echo $scraper_result['num_processed_items']; ?>) </td>
                         <td> <?php echo $scraper_result['total_num_items']; ?>&nbsp;<?php echo $scraper_result['item_description']; ?></td>
-                        <td> <?php echo $scraper_result['run_location']; ?> </td>
                     </tr>
                 <?php } ?>
                 </tbody>
